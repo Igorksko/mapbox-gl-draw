@@ -1,3 +1,5 @@
+const Constants = require('../constants');
+
 function throttle(func, wait, options) {
   var context, args, result;
   var timeout = null;
@@ -29,6 +31,8 @@ function throttle(func, wait, options) {
     return result;
   };
 }
+
+const frameDuration = 16.6;
 
 const ModeHandler = function(mode, DrawContext) {
 
@@ -71,7 +75,7 @@ const ModeHandler = function(mode, DrawContext) {
         handle.fn.call(ctx, event);
 
         if (
-          DrawContext.api.getMode() === 'simple_select'
+          DrawContext.api.getMode() === Constants.modes.SIMPLE_SELECT
           && (
             eventName === 'mousemove'
             || eventName === 'drag' && !DrawContext.api.getSelectedIds().length
@@ -118,13 +122,13 @@ const ModeHandler = function(mode, DrawContext) {
     },
     drag: throttle(function(event) {
       delegate('drag', event);
-    }, 16.6),
+    }, frameDuration),
     click: function(event) {
       delegate('click', event);
     },
     mousemove: throttle(function(event) {
       delegate('mousemove', event);
-    }, 16.6),
+    }, frameDuration),
     mousedown: function(event) {
       delegate('mousedown', event);
     },
