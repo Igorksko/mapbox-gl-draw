@@ -56,7 +56,7 @@ module.exports = function(ctx, api) {
     if (featureCollection.type === undefined || featureCollection.type !== Constants.geojsonTypes.FEATURE_COLLECTION || !Array.isArray(featureCollection.features)) {
       throw new Error('Invalid FeatureCollection');
     }
-    const renderBatch = ctx.store.createRenderBatch();
+
     let toDelete = ctx.store.getAllIds().slice();
     const newIds = api.add(featureCollection);
     const newIdsLookup = new StringSet(newIds);
@@ -66,7 +66,7 @@ module.exports = function(ctx, api) {
       api.delete(toDelete);
     }
 
-    renderBatch();
+    ctx.store.render();
     return newIds;
   };
 
@@ -149,13 +149,14 @@ module.exports = function(ctx, api) {
   };
 
   api.changeMode = function(mode, modeOptions = {}) {
+    ctx.store.render();
+
     // Avoid changing modes just to re-select what's already selected
     if (mode === Constants.modes.SIMPLE_SELECT && api.getMode() === Constants.modes.SIMPLE_SELECT) {
       if (stringSetsAreEqual((modeOptions.featureIds || []), ctx.store.getSelectedIds())) return api;
       // And if we are changing the selection within simple_select mode, just change the selection,
       // instead of stopping and re-starting the mode
       ctx.store.setSelected(modeOptions.featureIds, { silent: true });
-      ctx.store.render();
       return api;
     }
 
